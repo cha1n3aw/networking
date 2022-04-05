@@ -22,31 +22,31 @@ namespace networking
 
         private void ReceiveData()
         {
-            UdpClient receiver = new UdpClient(LocalPort);
+            UdpClient receiver = new(LocalPort);
             IPEndPoint remoteIp = null;
-            try
+            while (Run)
             {
-                while (Run)
+                try
                 {
                     byte[] data = receiver.Receive(ref remoteIp);
                     string message = Encoding.Default.GetString(data);
                     if (OnDataReceived != null)
                     {
-                        DataReceivedEventArgs args = new DataReceivedEventArgs(message, remoteIp);
+                        DataReceivedEventArgs args = new(message, remoteIp);
                         OnDataReceived(this, args);
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    receiver.Close();
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-                receiver.Close();
-            }
-        } 
-        
+        }
+
         public void Send(string data)
         {
             try
@@ -57,10 +57,6 @@ namespace networking
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-                
             }
         }
 
